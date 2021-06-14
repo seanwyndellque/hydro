@@ -52,12 +52,20 @@ function _hydro_prompt --on-event fish_prompt
     fish --private --command "
         ! command git --no-optional-locks rev-parse 2>/dev/null && set $_hydro_git && exit
 
-        set branch (
+        set _branch (
             command git symbolic-ref --short HEAD 2>/dev/null ||
             command git describe --tags --exact-match HEAD 2>/dev/null ||
             command git rev-parse --short HEAD 2>/dev/null |
                 string replace --regex -- '(.+)' '@\$1'
         )
+
+        set short_branch (string sub --length 30 \"\$_branch\")
+        if test (string length \"\$_branch\") -gt 30
+            set branch_suffix \"…\"
+        else
+            set branch_suffix \"\"
+        end
+        set branch \"\$short_branch\$branch_suffix\"
 
         test -z \"\$$_hydro_git\" && set --universal $_hydro_git \"\$branch \"
 
@@ -109,4 +117,3 @@ set --query hydro_symbol_prompt || set --global hydro_symbol_prompt ❱
 set --query hydro_symbol_git_dirty || set --global hydro_symbol_git_dirty •
 set --query hydro_symbol_git_ahead || set --global hydro_symbol_git_ahead ↑
 set --query hydro_symbol_git_behind || set --global hydro_symbol_git_behind ↓
-
